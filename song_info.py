@@ -81,12 +81,13 @@ def get_audio_stream_info(url):
         sample_rate = stream.get("sample_rate", "Unknown")
         bitrate = stream.get("bit_rate", "Unknown")
         channels = stream.get("channels", "Unknown")
+        channel_layout = stream.get("channel_layout", "Unknown")
 
-        return codec, sample_rate, bitrate, channels
+        return codec, sample_rate, bitrate, channels, channel_layout
 
     except Exception as e:
         print(f"ffprobe error for URL {url}: {e}")
-        return "Unknown", "Unknown", "Unknown", "Unknown"
+        return "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
 
 
 # Function to get ICY metadata from a stream
@@ -140,7 +141,7 @@ def process_csv(input_file, output_file):
                 'country', 'country_code',
                 'latitude', 'longitude',
                 'reverse_country', 'reverse_country_code',
-                'codec', 'sample_rate', 'bitrate', 'channels',
+                'codec', 'sample_rate', 'bitrate', 'channels', 'channel_layout',
                 'icy-br', 'icy-description', 'icy-genre', 'icy-name', 'icy-pub', 'StreamTitle'
             ]
             writer = csv.DictWriter(outfile, fieldnames=fieldnames)
@@ -163,13 +164,13 @@ def process_csv(input_file, output_file):
                         country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
                         reverse_country, reverse_country_code = "Unknown", "Unknown"
 
-                    codec, sample_rate, bitrate, channels = get_audio_stream_info(url)
+                    codec, sample_rate, bitrate, channels, channel_layout = get_audio_stream_info(url)
                     icy_metadata = get_icy_metadata(url)
 
                 else:
                     country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
                     reverse_country, reverse_country_code = "Unknown", "Unknown"
-                    codec, sample_rate, bitrate, channels = "Unknown", "Unknown", "Unknown", "Unknown"
+                    codec, sample_rate, bitrate, channels, channel_layout = "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
                     icy_metadata = {
                         'icy-br': 'Unknown',
                         'icy-description': 'Unknown',
@@ -181,9 +182,10 @@ def process_csv(input_file, output_file):
 
                 # Console output (optional)
                 sys.stdout.write(
-                    f"{url} | {availability} | {reverse_country} | {reverse_country_code} | "
-                    f"{latitude} | {longitude} | {codec} | {sample_rate} | {bitrate} | {channels} | "
-                    f"{icy_metadata['icy-name']} | {icy_metadata['StreamTitle']}\n"
+                    f"{url} | {availability} | {country} | {country_code} | {latitude} | {longitude} | "
+                    f"{reverse_country} | {reverse_country_code} | {codec} | {sample_rate} | {bitrate} | {channels} | {channel_layout} | "
+                    f"{icy_metadata['icy-br']} | {icy_metadata['icy-description']} | {icy_metadata['icy-genre']} | "
+                    f"{icy_metadata['icy-name']} | {icy_metadata['icy-pub']} | {icy_metadata['StreamTitle']}\n"
                 )
 
                 # Write to CSV
@@ -200,6 +202,7 @@ def process_csv(input_file, output_file):
                     'sample_rate': sample_rate,
                     'bitrate': bitrate,
                     'channels': channels,
+                    'channel_layout': channel_layout,
                     'icy-br': icy_metadata['icy-br'],
                     'icy-description': icy_metadata['icy-description'],
                     'icy-genre': icy_metadata['icy-genre'],

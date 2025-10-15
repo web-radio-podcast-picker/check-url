@@ -1,6 +1,7 @@
 import requests
 import socket
 import csv
+import sys
 from urllib.parse import urlparse
 from geopy.geocoders import Nominatim
 from time import sleep
@@ -97,6 +98,9 @@ def process_csv(input_file, output_file):
                 else:
                     country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
                     reverse_country, reverse_country_code = "Unknown", "Unknown"
+
+                # Output
+                sys.stdout.write(url+' | '+availability+' | '+reverse_country+' | '+reverse_country_code+' | '+latitude+' | '+longitude+'\n')
 
                 # Write each result row to the output CSV
                 writer.writerow({

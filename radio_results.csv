@@ -1,0 +1,4 @@
+url,availability,country,country_code,latitude,longitude,reverse_country,reverse_country_code
+https://radionova.ice.infomaniak.ch/radionova-256.aac,available,Switzerland,CH,46.2022,6.1457,Switzerland,ch
+http://african1paris.ice.infomaniak.ch/african1paris-128.mp3,available,Switzerland,CH,46.2022,6.1457,Switzerland,ch
+http://icecast.radiofrance.fr/francemusique-hifi.aac,available,France,FR,48.8534,2.3488,France,fr

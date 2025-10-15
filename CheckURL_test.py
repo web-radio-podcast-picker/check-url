@@ -46,7 +46,7 @@ def get_server_info(ip_address):
 
 # Reverse-geocode coordinates to a country
 def reverse_geocode(latitude, longitude):
-    geolocator = Nominatim(user_agent="GeoCheckerApp")
+    geolocator = Nominatim(user_agent="GeoCheckerApp", timeout=10)
     try:
         location = geolocator.reverse((latitude, longitude), language='en', exactly_one=True)
         if location:

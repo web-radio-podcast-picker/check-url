@@ -114,7 +114,7 @@ def process_csv(input_file, output_file):
                 sleep(1)
 
 
-# main program de checkURL
+# main program de checkURL par gaspi
 input_csv = 'radio_urls.csv'  # Your input CSV file containing URLs
 output_csv = 'radio_results.csv'  # The output CSV file where results will be saved
 process_csv(input_csv, output_csv)

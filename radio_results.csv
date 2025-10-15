@@ -1,7 +1,9 @@
-url,availability,country,country_code,latitude,longitude,reverse_country,reverse_country_code,codec,sample_rate,bitrate,channels
-https://cast4.asurahosting.com/proxy/afriradi/stream,available,FI,FI,60.1695,24.9354,Finland,fi,mp3,44100,128000,2
-https://radios.vpn.sapo.pt/AO/radio11.mp3,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-https://paineldj5.com.br:20087/stream,available,CA,CA,45.3134,-73.8725,Canada,ca,aac,48000,63654,2
-http://08.stmip.net:10028/listen.pls,available,US,US,39.0997,-94.5786,United States,us,Unknown,Unknown,Unknown,Unknown
-https://mediaserv33.live-streams.nl:8089/stream,available,NL,NL,52.3740,4.8897,Netherlands,nl,aac,44100,47569,2
-http://hts03.kshost.com.br:9126/;stream.nsv,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+url,availability,country,country_code,latitude,longitude,reverse_country,reverse_country_code,codec,sample_rate,bitrate,channels,icy-br,icy-description,icy-genre,icy-name,icy-pub,StreamTitle
+http://icecast.radiofrance.fr/franceculture-hifi.aac,available,FR,FR,48.8534,2.3488,France,fr,aac,48000,190612,2,192,Unknown,Unknown,franceculture-hifi.aac,0,Unknown
+https://cast4.asurahosting.com/proxy/afriradi/stream,available,FI,FI,60.1695,24.9354,Finland,fi,mp3,44100,128000,2,128,Unknown,Unspecified,AFRIRADIO Stream,0,Unknown - BLOCO NO BLOCO1
+https://radios.vpn.sapo.pt/AO/radio11.mp3,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+https://paineldj5.com.br:20087/stream,available,CA,CA,45.3134,-73.8725,Canada,ca,aac,48000,63598,2,64,Unknown,Unknown,no name,0,
+http://08.stmip.net:10028/listen.pls,available,US,US,39.0997,-94.5786,United States,us,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+https://mediaserv33.live-streams.nl:8089/stream,available,NL,NL,52.3740,4.8897,Netherlands,nl,aac,44100,48313,2,"48, 48",My station description,Various,Rádio Ecclesia,1,
+https://icecast.thisisdax.com/ClassicFMMP3,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+http://radionova.ice.infomaniak.ch/radionova-256.aac,available,CH,CH,46.2022,6.1457,Switzerland,ch,mp3,44100,128000,2,"128, 128",Unknown,Unknown,/radionova-256,Unknown,

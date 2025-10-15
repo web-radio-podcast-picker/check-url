@@ -2,6 +2,8 @@ import requests
 import socket
 import csv
 import sys
+import subprocess
+import json
 from urllib.parse import urlparse
 from geopy.geocoders import Nominatim
 from time import sleep
@@ -11,11 +13,8 @@ from time import sleep
 def check_radio_url(url):
     try:
         response = requests.get(url, timeout=10, stream=True)
-        if response.status_code == 200:
-            return True
-        else:
-            return False
-    except requests.exceptions.RequestException as e:
+        return response.status_code == 200
+    except requests.exceptions.RequestException:
         return False
 
 
@@ -29,27 +28,25 @@ def get_ip_from_url(url):
         return None
 
 
-# Function to get the full information (country, coordinates) of the server
+# Function to get server location info from IP
 def get_server_info(ip_address):
     try:
         response = requests.get(f"http://ipinfo.io/{ip_address}/json")
         data = response.json()
 
-        country_code = data.get("country", "Unknown")  # Country code (e.g., US, DE)
-        country_name = data.get("country_name", "Unknown")  # Full country name
-        loc = data.get("loc", "").split(",")  # Latitude and Longitude
+        country_code = data.get("country", "Unknown")
+        loc = data.get("loc", "").split(",")
         latitude = loc[0] if len(loc) > 0 else "Unknown"
         longitude = loc[1] if len(loc) > 1 else "Unknown"
 
-        return country_name, country_code, latitude, longitude
-    except requests.exceptions.RequestException as e:
+        return country_code, country_code, latitude, longitude  # country_name is not provided by ipinfo.io
+    except requests.exceptions.RequestException:
         return "Unknown", "Unknown", "Unknown", "Unknown"
 
 
-# Function to reverse-geocode the latitude and longitude to a country
+# Reverse-geocode coordinates to a country
 def reverse_geocode(latitude, longitude):
-    # Use a custom User-Agent to avoid 403 errors
-    geolocator = Nominatim(user_agent="GeoCheckerApp")  # Provide a custom User-Agent
+    geolocator = Nominatim(user_agent="GeoCheckerApp")
     try:
         location = geolocator.reverse((latitude, longitude), language='en', exactly_one=True)
         if location:
@@ -64,16 +61,47 @@ def reverse_geocode(latitude, longitude):
         return 'Unknown', 'Unknown'
 
 
-# Function to process the CSV input and output
+# Function to get audio stream properties using ffprobe
+def get_audio_stream_info(url):
+    cmd = [
+        'ffprobe',
+        '-v', 'error',
+        '-select_streams', 'a:0',
+        '-show_entries', 'stream=codec_name,sample_rate,bit_rate,channels',
+        '-of', 'json',
+        url
+    ]
+
+    try:
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        info = json.loads(result.stdout)
+        stream = info.get("streams", [])[0] if info.get("streams") else {}
+
+        codec = stream.get("codec_name", "Unknown")
+        sample_rate = stream.get("sample_rate", "Unknown")
+        bitrate = stream.get("bit_rate", "Unknown")
+        channels = stream.get("channels", "Unknown")
+
+        return codec, sample_rate, bitrate, channels
+
+    except Exception as e:
+        print(f"ffprobe error for URL {url}: {e}")
+        return "Unknown", "Unknown", "Unknown", "Unknown"
+
+
+# Main function to process CSV input and generate output
 def process_csv(input_file, output_file):
-    # Open the input CSV and read the URLs
     with open(input_file, 'r') as infile:
         reader = csv.DictReader(infile)
 
-        # Prepare to write the results to the output CSV
         with open(output_file, 'w', newline='') as outfile:
-            fieldnames = ['url', 'availability', 'country', 'country_code', 'latitude', 'longitude', 'reverse_country',
-                          'reverse_country_code']
+            fieldnames = [
+                'url', 'availability',
+                'country', 'country_code',
+                'latitude', 'longitude',
+                'reverse_country', 'reverse_country_code',
+                'codec', 'sample_rate', 'bitrate', 'channels'
+            ]
             writer = csv.DictWriter(outfile, fieldnames=fieldnames)
             writer.writeheader()
 
@@ -86,23 +114,26 @@ def process_csv(input_file, output_file):
                     if ip_address:
                         country, country_code, latitude, longitude = get_server_info(ip_address)
 
-                        # If coordinates are available, reverse geocode them
                         if latitude != "Unknown" and longitude != "Unknown":
                             reverse_country, reverse_country_code = reverse_geocode(latitude, longitude)
-                            # Only update country and code if the reverse geocode gives us a better result
                             country = reverse_country if country == "Unknown" else country
                             country_code = reverse_country_code if country_code == "Unknown" else country_code
                     else:
                         country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
                         reverse_country, reverse_country_code = "Unknown", "Unknown"
+
+                    codec, sample_rate, bitrate, channels = get_audio_stream_info(url)
+
                 else:
                     country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
                     reverse_country, reverse_country_code = "Unknown", "Unknown"
+                    codec, sample_rate, bitrate, channels = "Unknown", "Unknown", "Unknown", "Unknown"
 
-                # Output
-                sys.stdout.write(url+' | '+availability+' | '+reverse_country+' | '+reverse_country_code+' | '+latitude+' | '+longitude+'\n')
+                # Console output (optional)
+                sys.stdout.write(f"{url} | {availability} | {reverse_country} | {reverse_country_code} | "
+                                 f"{latitude} | {longitude} | {codec} | {sample_rate} | {bitrate} | {channels}\n")
 
-                # Write each result row to the output CSV
+                # Write to CSV
                 writer.writerow({
                     'url': url,
                     'availability': availability,
@@ -111,14 +142,19 @@ def process_csv(input_file, output_file):
                     'latitude': latitude,
                     'longitude': longitude,
                     'reverse_country': reverse_country,
-                    'reverse_country_code': reverse_country_code
+                    'reverse_country_code': reverse_country_code,
+                    'codec': codec,
+                    'sample_rate': sample_rate,
+                    'bitrate': bitrate,
+                    'channels': channels
                 })
 
-                # Sleep to avoid overloading the geocoding service
+                # Be kind to geolocation services
                 sleep(1)
 
 
-# main program de checkURL par ARP188
-input_csv = 'radio_urls.csv'  # Your input CSV file containing URLs
-output_csv = 'radio_results.csv'  # The output CSV file where results will be saved
-process_csv(input_csv, output_csv)
+# Main program
+if __name__ == '__main__':
+    input_csv = 'radio_urls.csv'         # Input file
+    output_csv = 'radio_results.csv'     # Output file
+    process_csv(input_csv, output_csv)

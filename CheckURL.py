@@ -31,7 +31,7 @@ def get_ip_from_url(url):
 # Function to get server location info from IP
 def get_server_info(ip_address):
     try:
-        response = requests.get(f"http://ipinfo.io/{ip_address}/json")
+        response = requests.get(f"http://ipinfo.io/{ip_address}/json?token=604518a7c453f5")
         data = response.json()
 
         country_code = data.get("country", "Unknown")
@@ -150,7 +150,7 @@ def process_csv(input_file, output_file):
             for row in reader:
                 url = row['url']
                 availability = "available" if check_radio_url(url) else "unavailable"
-
+                reverse_country = reverse_country_code = "Unknown"
                 if availability == "available":
                     ip_address = get_ip_from_url(url)
                     if ip_address:

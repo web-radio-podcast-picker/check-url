@@ -1,40 +1,9 @@
 url,availability,country,country_code,latitude,longitude,reverse_country,reverse_country_code,codec,sample_rate,bitrate,channels,channel_layout,icy-br,icy-description,icy-genre,icy-name,icy-pub,StreamTitle
-http://icecast.radiofrance.fr/franceculture-hifi.aac,available,FR,FR,48.8534,2.3488,France,fr,aac,48000,192537,2,Unknown,192,Unknown,Unknown,franceculture-hifi.aac,0,Unknown
-https://cast4.asurahosting.com/proxy/afriradi/stream,available,FI,FI,60.1695,24.9354,Finland,fi,mp3,44100,128000,2,Unknown,128,Unknown,Unspecified,AFRIRADIO Stream,0,Unknown - BLOCO NO BLOCO1
-https://radios.vpn.sapo.pt/AO/radio11.mp3,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-https://paineldj5.com.br:20087/stream,available,CA,CA,45.3134,-73.8725,Canada,ca,aac,48000,64046,2,Unknown,64,Unknown,Unknown,no name,0,
+http://icecast.radiofrance.fr/franceculture-hifi.aac,available,FR,FR,48.8534,2.3488,France,fr,aac,48000,191494,2,Unknown,192,Unknown,Unknown,franceculture-hifi.aac,0,Unknown
+https://paineldj5.com.br:20087/stream,available,CA,CA,45.3134,-73.8725,Canada,ca,aac,48000,71700,2,Unknown,64,Unknown,Unknown,no name,0,
 http://08.stmip.net:10028/listen.pls,available,US,US,39.0997,-94.5786,United States,us,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-https://mediaserv33.live-streams.nl:8089/stream,available,NL,NL,52.3740,4.8897,Netherlands,nl,aac,44100,48319,2,Unknown,"48, 48",My station description,Various,Rádio Ecclesia,1,
-https://icecast.thisisdax.com/ClassicFMMP3,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://radionova.ice.infomaniak.ch/radionova-256.aac,available,CH,CH,46.2022,6.1457,Switzerland,ch,mp3,44100,128000,2,Unknown,"128, 128",Unknown,Unknown,/radionova-256,Unknown,
-http://stream.webthings.hu:8000/fm95-x-128.mp3,available,HU,HU,47.4984,19.0404,Hungary,hu,mp3,44100,128000,2,Unknown,128,BestFM - A zene radioja,POP,BestFM - a zene radioja - hosted by gomedia.hu,0,Eamon-F**k It [I Don\'t Want You Back]
-http://stream.diazol.hu:35160/live.mp3,available,HU,HU,47.4984,19.0404,Hungary,hu,mp3,44100,192000,2,Unknown,192,Unknown,Other,Bithang Yoo Radio,0,Fiesta - Gyllve Szeretni
-http://libretime.buddhafm.hu:4000/buddhafm,available,HU,HU,47.4984,19.0404,Hungary,hu,mp3,44100,192000,2,Unknown,192,Buddha FM Radio!,Unknown,Buddha FM,1," - Szabadsg, szeretet s az alkots rme - Portr Lszl Andrsrl Riporter: Horvth M. Zsfia (2024)"
-http://civilradio.hu:8000/;stream,available,HU,HU,47.4984,19.0404,Hungary,hu,mp3,44100,128000,2,Unknown,128,Unknown,Various,Civil Radio,0,East - Ha zászlót bont a félelem
-http://mediagw.e-tiger.net/stream/cfmhq,available,HU,HU,47.0933,17.9115,Hungary,hu,mp3,44100,192000,2,Unknown,192,"COOLFM.hu - RADIOCSATORNAK, PODCASTOK ES MIXEK",Top 40,COOL FM,1,Ed Sheeran - Bad Habits
-http://mediagw.e-tiger.net:8000/stream/goldhq,available,HU,HU,47.0933,17.9115,Hungary,hu,mp3,44100,128000,2,Unknown,128,"COOLFM.hu - RADIOCSATORNAK, PODCASTOK ES MIXEK",Oldies,Goldies,1,Boy Meets Girl - Waiting For A Star To Fall (1988)
-http://mediagw.e-tiger.net/stream/krehq,available,HU,HU,47.0933,17.9115,Hungary,hu,mp3,44100,128000,2,Unknown,128,a KRE egyetemi rádiója,Pop,kultX - egyetemi rádió,0,Perrie - If He Wanted To He Would
-http://mediagw.e-tiger.net/stream/xbeathq,available,HU,HU,47.0933,17.9115,Hungary,hu,mp3,44100,128000,2,Unknown,128,"COOLFM.hu - RADIOCSATORNAK, PODCASTOK ES MIXEK",Dance,Xbeat,1,Gabry Ponte - Thunder
-https://mediagw.e-tiger.net/stream/zc10,available,HU,HU,47.0933,17.9115,Hungary,hu,mp3,44100,128000,2,Unknown,128,Unknown,rock,COOLFM ROCK,1,Imagine Dragons  - Next To Me
-https://mediagw.e-tiger.net/stream/zc03,available,HU,HU,47.0933,17.9115,Hungary,hu,mp3,44100,128000,2,Unknown,128,Unknown,Pop,COOLFM 2000's,0,Gwen Stefani - Hollabck Girl
-https://mediagw.e-tiger.net/stream/zc02,available,HU,HU,47.0933,17.9115,Hungary,hu,mp3,44100,128000,2,Unknown,128,Unknown,Pop,COOLFM 2010's,0,Ariana Grande / The Weeknd - Love Me Harder
-http://streaming.radionula.com:8800/channel2,available,NL,NL,52.2233,5.1764,Netherlands,nl,mp3,44100,192000,2,Unknown,"192, 192",Unknown,Unknown,no name,0,
-http://streaming.radionula.com:8800/classics,available,NL,NL,52.2233,5.1764,Netherlands,nl,mp3,44100,192000,2,Unknown,"192, 192",Unknown,Unknown,no name,0,
-http://streaming.radionula.com:8800/lounge,available,NL,NL,52.2233,5.1764,Netherlands,nl,mp3,44100,192000,2,Unknown,"192, 192",Unknown,Unknown,no name,0,
-http://live.ognjisce.si/ognjisce.mp3,available,SI,SI,46.0511,14.5051,Slovenia,si,mp3,48000,192000,2,Unknown,"192, 192",Unknown,Unknown,Radio Ognjisce,1,Pogovor o										    
-http://mp3.rtvslo.si/ra1,available,SI,SI,46.0511,14.5051,Slovenia,si,aac,48000,191280,2,Unknown,192,Unknown,Unknown,Radio PRVI,1,Govorna vsebina
-http://193.105.67.24:8010/,available,SI,SI,45.5482,13.7296,Slovenia,si,mp3,44100,128000,2,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-https://live.radio.si/Salomon,available,SI,SI,46.0511,14.5051,Slovenia,si,mp3,44100,128000,2,Unknown,128,Radio Salomon,Pop,Salomon,0,DOUBLE TOUCH - DREAMS (FEAT. TIM CONLON)
-http://stream.radioantritt.hu:8000/Antritt	available	Hungary,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://195.210.29.82:8001/bezs	available	Slovakia,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://195.210.29.82:8002/bezs2	available	Slovakia,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://stream3.virtualisan.net:7040/listen.pls	available	France,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://dreamsiteradiocp.com:8032/stream	available	France,available,FR,FR,50.6330,3.0586,France,fr,mp3,44100,64000,1,Unknown,64,Unknown,Talk,RADIO MARIA HUNGARY,0,RADIO MARIA HUNGARY
-http://radiobrand.es:8084/	available	Spain,available,ES,ES,42.4661,-2.4512,Spain,es,mp3,44100,128000,2,Unknown,128,Unknown,Misc,Radio Brand,1,Latin Aspects - Nenem
-http://188.165.11.30:7000/live.mp3	available	France,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://online.szentistvanradio.hu:7000/adas	available	Hungary,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://live.taskaradio.com:7070/;stream.nsv#.mp3	available	France,available,FR,FR,50.9865,2.1281,France,fr,mp3,44100,128000,2,Unknown,"128, 128",Unknown,Unknown,TÃ¡ska RÃ¡diÃ³,0,
-http://mp3.rtvslo.si/ars	available	Slovenia,unavailable,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://stream3.radiocenter.si:8000/;center/1	available	Slovenia,available,SI,SI,46.0511,14.5051,Slovenia,si,mp3,44100,128000,2,Unknown,128,Unknown,TOP 40,HITRADIO CENTER - Prvi v Sloveniji za hite,0,KIM PETRAS FT. NICKI MINAJ - ALONE
-http://stream3.radiocenter.si:8000/center	available	Slovenia,available,SI,SI,46.0511,14.5051,Slovenia,si,mp3,44100,128000,2,Unknown,128,Unknown,TOP 40,HITRADIO CENTER - Prvi v Sloveniji za hite,0,KIM PETRAS FT. NICKI MINAJ - ALONE
-http://stream3.radiocenter.si:8064/;stream/1	available	Slovenia,available,SI,SI,46.0511,14.5051,Slovenia,si,mp3,44100,128000,2,Unknown,128,Unknown,80s,CENTER 80s,1,BRYAN ADAMS - HEAT OF THE NIGHT
+https://mediaserv33.live-streams.nl:8089/stream,available,NL,NL,52.3740,4.8897,Netherlands,nl,aac,44100,47946,2,Unknown,"48, 48",My station description,Various,RÃ¡dio Ecclesia,1,
+http://stream.zeno.fm/9zhvcmu5uwzuv?rj-ttl=5&rj-tok=AAABfdqw1xgAOECX_yvMfwuSHA,available,CA,CA,45.3134,-73.8725,Canada,ca,mp3,44100,96000,2,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+http://stream.zeno.fm/gzsfna8zxqzuv?rj-ttl=5&rj-tok=AAABfd0r5mkASE-v60s_FF2TmQ,available,CA,CA,45.3134,-73.8725,Canada,ca,mp3,44100,128000,2,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
+http://ice1.securenetsystems.net/DEMOSTN,available,US,US,26.3587,-80.0831,United States,us,aac,44100,31984,2,Unknown,"32, 32",Streaming by Securenet Systems Cirrus(R),Rock,Streaming by Securenet Systems Cirrus(R),1,Music Unlimited - Tropical Summer Music
+https://s31.myradiostream.com:7384/listen.mp3?_=1?nocache=1748834704,available,GB,GB,50.7990,-1.0913,United Kingdom,gb,mp3,44100,128000,2,Unknown,128,Unknown,Misc,BlueFm,0,Unknown

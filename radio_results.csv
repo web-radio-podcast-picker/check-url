@@ -1,8 +1,0 @@
-url,availability,country,country_code,latitude,longitude,reverse_country,reverse_country_code,codec,sample_rate,bitrate,channels,channel_layout,icy-br,icy-description,icy-genre,icy-name,icy-pub,StreamTitle
-http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,190624,2,?,192,?,?,franceculture-hifi.aac,0,?
-https://paineldj5.com.br:20087/stream,1,CA,CA,45.3134,-73.8725,Canada,ca,aac,48000,64098,2,?,64,?,?,no name,0,
-http://08.stmip.net:10028/listen.pls,1,US,US,39.0997,-94.5786,United States,us,?,?,?,?,?,?,?,?,?,?,?
-http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,191320,2,?,192,?,?,franceculture-hifi.aac,0,?
-http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,192124,2,?,192,?,?,franceculture-hifi.aac,0,?
-http://08.stmip.net:10028/listen.pls,1,US,US,39.0997,-94.5786,United States,us,?,?,?,?,?,?,?,?,?,?,?
-http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,192623,2,?,192,?,?,franceculture-hifi.aac,0,?

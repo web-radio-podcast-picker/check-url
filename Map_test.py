@@ -37,17 +37,17 @@ def get_server_info(ip_address):
         response = requests.get(url, timeout=5)
         data = response.json()
         # Debug print
-        print(f"IPinfo for {ip_address}: {data}")
+        # print(f"IPinfo for {ip_address}: {data}")
 
         country_code = data.get("country", "?")
         loc = data.get("loc", "").split(",")
         latitude = loc[0] if len(loc) > 0 and loc[0] != "" else "?"
         longitude = loc[1] if len(loc) > 1 and loc[1] != "" else "?"
 
-        return country_code, country_code, latitude, longitude
+        return latitude, longitude
     except Exception as e:
         print(f"Error in get_server_info for {ip_address}: {e}")
-        return "?", "?", "?", "?"
+        return "?", "?"
 
 
 # Reverse-geocode coordinates to a country
@@ -108,7 +108,7 @@ def get_icy_metadata(url):
             'icy-genre': response.headers.get('icy-genre', '?'),
             'icy-name': response.headers.get('icy-name', '?'),
             'icy-pub': response.headers.get('icy-pub', '?'),
-            'StreamTitle': '?'
+            #  'StreamTitle': '?'
         }
 
         if 'icy-metaint' in response.headers:
@@ -116,8 +116,8 @@ def get_icy_metadata(url):
             response.raw.read(metaint)  # skip audio data
             metadata_length = int.from_bytes(response.raw.read(1), 'big') * 16
             metadata = response.raw.read(metadata_length).decode('utf-8', errors='ignore')
-            if "StreamTitle=" in metadata:
-                icy_metadata['StreamTitle'] = metadata.split("StreamTitle='")[1].split("';")[0]
+            #  if "StreamTitle=" in metadata:
+                #  icy_metadata['StreamTitle'] = metadata.split("StreamTitle='")[1].split("';")[0]
 
         return icy_metadata
 
@@ -128,8 +128,8 @@ def get_icy_metadata(url):
             'icy-description': '?',
             'icy-genre': '?',
             'icy-name': '?',
-            'icy-pub': '?',
-            'StreamTitle': '?'
+            'icy-pub': '?'
+            #  'StreamTitle': '?'
         }
 
 # Function to create a map from the CSV output
@@ -140,7 +140,7 @@ def get_color_intensity(n, max_n=10):
     r, g, b = colorsys.hls_to_rgb(h, l, s)
     return f'#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}'
 
-def create_map_from_csv(output_file, map_file='map.html'):
+def create_map_from_csv(output_file, map_file='output/map.html'):
     m = folium.Map(location=[20, 0], zoom_start=2)
     coord_groups = defaultdict(list)
 
@@ -187,22 +187,22 @@ def process_csv(input_file, output_file):
 
         with open(output_file, 'w', newline='', encoding='utf-8') as outfile:
             fieldnames = [
-                'url', 'availability',
+                'name', 'url', 'availability',
                 'country', 'country_code',
                 'latitude', 'longitude',
-                'reverse_country', 'reverse_country_code',
                 'codec', 'sample_rate', 'bitrate', 'channels', 'channel_layout',
-                'icy-br', 'icy-description', 'icy-genre', 'icy-name', 'icy-pub', 'StreamTitle'
+                'icy-br', 'icy-description', 'icy-genre', 'icy-name', 'icy-pub'
+                #  , 'StreamTitle'
             ]
             writer = csv.DictWriter(outfile, fieldnames=fieldnames)
             writer.writeheader()
 
             for row in reader:
+                name = row['name']
                 url = row['url']
                 availability = "1" if check_radio_url(url) else "0"
 
                 # Default values for all optional fields
-                reverse_country, reverse_country_code = "?", "?"
                 country, country_code, latitude, longitude = "?", "?", "?", "?"
                 codec, sample_rate, bitrate, channels, channel_layout = "?", "?", "?", "?", "?"
                 icy_metadata = {
@@ -210,19 +210,17 @@ def process_csv(input_file, output_file):
                     'icy-description': '?',
                     'icy-genre': '?',
                     'icy-name': '?',
-                    'icy-pub': '?',
-                    'StreamTitle': '?'
+                    'icy-pub': '?'
+                    #  'StreamTitle': '?'
                 }
 
                 if availability == "1":
                     ip_address = get_ip_from_url(url)
                     if ip_address:
-                        country, country_code, latitude, longitude = get_server_info(ip_address)
+                        latitude, longitude = get_server_info(ip_address)
 
                         if latitude != "?" and longitude != "?":
-                            reverse_country, reverse_country_code = reverse_geocode(latitude, longitude)
-                            country = reverse_country if country == "?" else country
-                            country_code = reverse_country_code if country_code == "?" else country_code
+                            country, country_code = reverse_geocode(latitude, longitude)
 
                     codec, sample_rate, bitrate, channels, channel_layout = get_audio_stream_info(url)
                     icy_metadata = get_icy_metadata(url)
@@ -230,21 +228,21 @@ def process_csv(input_file, output_file):
                 # Console output (optional)
                 sys.stdout.write(
                     f"{url} | {availability} | {country} | {country_code} | {latitude} | {longitude} | "
-                    f"{reverse_country} | {reverse_country_code} | {codec} | {sample_rate} | {bitrate} | {channels} | {channel_layout} | "
+                    f"{codec} | {sample_rate} | {bitrate} | {channels} | {channel_layout} | "
                     f"{icy_metadata['icy-br']} | {icy_metadata['icy-description']} | {icy_metadata['icy-genre']} | "
-                    f"{icy_metadata['icy-name']} | {icy_metadata['icy-pub']} | {icy_metadata['StreamTitle']}\n"
+                    f"{icy_metadata['icy-name']} | {icy_metadata['icy-pub']} \n"
+                    #  f"{icy_metadata['StreamTitle']}\n"
                 )
 
                 # Write row to CSV
                 writer.writerow({
+                    'name': name,
                     'url': url,
                     'availability': availability,
                     'country': country,
                     'country_code': country_code,
                     'latitude': latitude,
                     'longitude': longitude,
-                    'reverse_country': reverse_country,
-                    'reverse_country_code': reverse_country_code,
                     'codec': codec,
                     'sample_rate': sample_rate,
                     'bitrate': bitrate,
@@ -254,8 +252,7 @@ def process_csv(input_file, output_file):
                     'icy-description': icy_metadata['icy-description'],
                     'icy-genre': icy_metadata['icy-genre'],
                     'icy-name': icy_metadata['icy-name'],
-                    'icy-pub': icy_metadata['icy-pub'],
-                    'StreamTitle': icy_metadata['StreamTitle']
+                    'icy-pub': icy_metadata['icy-pub']
                 })
 
                 # Be kind to external services
@@ -266,6 +263,6 @@ def process_csv(input_file, output_file):
 
 # Main program
 if __name__ == '__main__':
-    input_csv = 'radio_urls.csv'         # Input file
-    output_csv = 'radio_results.csv'     # Output file
+    input_csv = 'input/radio_urls.csv'         # Input file
+    output_csv = "output/radio_results.csv"  # Output file
     process_csv(input_csv, output_csv)

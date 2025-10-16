@@ -7,7 +7,7 @@ import json
 from urllib.parse import urlparse
 from geopy.geocoders import Nominatim
 from time import sleep
-
+import folium  # For map generation
 
 # Function to check if the radio URL is available
 def check_radio_url(url):
@@ -16,7 +16,6 @@ def check_radio_url(url):
         return response.status_code == 200
     except requests.exceptions.RequestException:
         return False
-
 
 # Function to get the IP address of the server
 def get_ip_from_url(url):
@@ -27,20 +26,23 @@ def get_ip_from_url(url):
     except socket.gaierror:
         return None
 
-
 # Function to get server location info from IP
 def get_server_info(ip_address):
     try:
-        response = requests.get(f"http://ipinfo.io/{ip_address}/json?token=604518a7c453f5")
+        url = f"http://ipinfo.io/{ip_address}/json?token=604518a7c453f5"
+        response = requests.get(url, timeout=5)
         data = response.json()
+        # Debug print
+        print(f"IPinfo for {ip_address}: {data}")
 
         country_code = data.get("country", "Unknown")
         loc = data.get("loc", "").split(",")
-        latitude = loc[0] if len(loc) > 0 else "Unknown"
-        longitude = loc[1] if len(loc) > 1 else "Unknown"
+        latitude = loc[0] if len(loc) > 0 and loc[0] != "" else "Unknown"
+        longitude = loc[1] if len(loc) > 1 and loc[1] != "" else "Unknown"
 
         return country_code, country_code, latitude, longitude
-    except requests.exceptions.RequestException:
+    except Exception as e:
+        print(f"Error in get_server_info for {ip_address}: {e}")
         return "Unknown", "Unknown", "Unknown", "Unknown"
 
 
@@ -60,7 +62,6 @@ def reverse_geocode(latitude, longitude):
         print(f"Error in reverse geocoding: {e}")
         return 'Unknown', 'Unknown'
 
-
 # Function to get audio stream properties using ffprobe
 def get_audio_stream_info(url):
     cmd = [
@@ -71,7 +72,6 @@ def get_audio_stream_info(url):
         '-of', 'json',
         url
     ]
-
     try:
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
         info = json.loads(result.stdout)
@@ -88,7 +88,6 @@ def get_audio_stream_info(url):
     except Exception as e:
         print(f"ffprobe error for URL {url}: {e}")
         return "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
-
 
 # Function to get ICY metadata from a stream
 def get_icy_metadata(url):
@@ -129,13 +128,39 @@ def get_icy_metadata(url):
             'StreamTitle': 'Unknown'
         }
 
+# Function to create a map from the CSV output
+def create_map_from_csv(output_file, map_file='map.html'):
+    m = folium.Map(location=[20, 0], zoom_start=2)
+
+    with open(output_file, 'r', newline='', encoding='utf-8') as infile:
+        reader = csv.DictReader(infile)
+        for row in reader:
+            lat = row['latitude']
+            lon = row['longitude']
+            url = row['url']
+            if lat not in ['Unknown', '', None] and lon not in ['Unknown', '', None]:
+                try:
+                    folium.CircleMarker(
+                        location=[float(lat), float(lon)],
+                        radius=2,                      # Taille du point
+                        color='red',
+                        fill=True,
+                        fill_color='black',
+                        fill_opacity=0.7,
+                        popup=folium.Popup(f"<b>Stream:</b><br>{url}", max_width=300)
+                    ).add_to(m)
+                except ValueError:
+                    continue
+
+    m.save(map_file)
+    print(f"\n📍 Carte générée : {map_file}")
 
 # Main function to process CSV input and generate output
 def process_csv(input_file, output_file):
     with open(input_file, 'r') as infile:
         reader = csv.DictReader(infile)
 
-        with open(output_file, 'w', newline='') as outfile:
+        with open(output_file, 'w', newline='', encoding='utf-8') as outfile:
             fieldnames = [
                 'url', 'availability',
                 'country', 'country_code',
@@ -150,7 +175,20 @@ def process_csv(input_file, output_file):
             for row in reader:
                 url = row['url']
                 availability = "available" if check_radio_url(url) else "unavailable"
-                reverse_country = reverse_country_code = "Unknown"
+
+                # Default values for all optional fields
+                reverse_country, reverse_country_code = "Unknown", "Unknown"
+                country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
+                codec, sample_rate, bitrate, channels, channel_layout = "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
+                icy_metadata = {
+                    'icy-br': 'Unknown',
+                    'icy-description': 'Unknown',
+                    'icy-genre': 'Unknown',
+                    'icy-name': 'Unknown',
+                    'icy-pub': 'Unknown',
+                    'StreamTitle': 'Unknown'
+                }
+
                 if availability == "available":
                     ip_address = get_ip_from_url(url)
                     if ip_address:
@@ -160,25 +198,9 @@ def process_csv(input_file, output_file):
                             reverse_country, reverse_country_code = reverse_geocode(latitude, longitude)
                             country = reverse_country if country == "Unknown" else country
                             country_code = reverse_country_code if country_code == "Unknown" else country_code
-                    else:
-                        country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
-                        reverse_country, reverse_country_code = "Unknown", "Unknown"
 
                     codec, sample_rate, bitrate, channels, channel_layout = get_audio_stream_info(url)
                     icy_metadata = get_icy_metadata(url)
-
-                else:
-                    country, country_code, latitude, longitude = "Unknown", "Unknown", "Unknown", "Unknown"
-                    reverse_country, reverse_country_code = "Unknown", "Unknown"
-                    codec, sample_rate, bitrate, channels, channel_layout = "Unknown", "Unknown", "Unknown", "Unknown", "Unknown"
-                    icy_metadata = {
-                        'icy-br': 'Unknown',
-                        'icy-description': 'Unknown',
-                        'icy-genre': 'Unknown',
-                        'icy-name': 'Unknown',
-                        'icy-pub': 'Unknown',
-                        'StreamTitle': 'Unknown'
-                    }
 
                 # Console output (optional)
                 sys.stdout.write(
@@ -188,7 +210,7 @@ def process_csv(input_file, output_file):
                     f"{icy_metadata['icy-name']} | {icy_metadata['icy-pub']} | {icy_metadata['StreamTitle']}\n"
                 )
 
-                # Write to CSV
+                # Write row to CSV
                 writer.writerow({
                     'url': url,
                     'availability': availability,
@@ -214,6 +236,8 @@ def process_csv(input_file, output_file):
                 # Be kind to external services
                 sleep(1)
 
+    # Create map after CSV is written
+    create_map_from_csv(output_file)
 
 # Main program
 if __name__ == '__main__':

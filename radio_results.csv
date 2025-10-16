@@ -1,9 +1,8 @@
 url,availability,country,country_code,latitude,longitude,reverse_country,reverse_country_code,codec,sample_rate,bitrate,channels,channel_layout,icy-br,icy-description,icy-genre,icy-name,icy-pub,StreamTitle
-http://icecast.radiofrance.fr/franceculture-hifi.aac,available,FR,FR,48.8534,2.3488,France,fr,aac,48000,191494,2,Unknown,192,Unknown,Unknown,franceculture-hifi.aac,0,Unknown
-https://paineldj5.com.br:20087/stream,available,CA,CA,45.3134,-73.8725,Canada,ca,aac,48000,71700,2,Unknown,64,Unknown,Unknown,no name,0,
-http://08.stmip.net:10028/listen.pls,available,US,US,39.0997,-94.5786,United States,us,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-https://mediaserv33.live-streams.nl:8089/stream,available,NL,NL,52.3740,4.8897,Netherlands,nl,aac,44100,47946,2,Unknown,"48, 48",My station description,Various,Rádio Ecclesia,1,
-http://stream.zeno.fm/9zhvcmu5uwzuv?rj-ttl=5&rj-tok=AAABfdqw1xgAOECX_yvMfwuSHA,available,CA,CA,45.3134,-73.8725,Canada,ca,mp3,44100,96000,2,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://stream.zeno.fm/gzsfna8zxqzuv?rj-ttl=5&rj-tok=AAABfd0r5mkASE-v60s_FF2TmQ,available,CA,CA,45.3134,-73.8725,Canada,ca,mp3,44100,128000,2,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown,Unknown
-http://ice1.securenetsystems.net/DEMOSTN,available,US,US,26.3587,-80.0831,United States,us,aac,44100,31984,2,Unknown,"32, 32",Streaming by Securenet Systems Cirrus(R),Rock,Streaming by Securenet Systems Cirrus(R),1,Music Unlimited - Tropical Summer Music
-https://s31.myradiostream.com:7384/listen.mp3?_=1?nocache=1748834704,available,GB,GB,50.7990,-1.0913,United Kingdom,gb,mp3,44100,128000,2,Unknown,128,Unknown,Misc,BlueFm,0,Unknown
+http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,190624,2,?,192,?,?,franceculture-hifi.aac,0,?
+https://paineldj5.com.br:20087/stream,1,CA,CA,45.3134,-73.8725,Canada,ca,aac,48000,64098,2,?,64,?,?,no name,0,
+http://08.stmip.net:10028/listen.pls,1,US,US,39.0997,-94.5786,United States,us,?,?,?,?,?,?,?,?,?,?,?
+http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,191320,2,?,192,?,?,franceculture-hifi.aac,0,?
+http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,192124,2,?,192,?,?,franceculture-hifi.aac,0,?
+http://08.stmip.net:10028/listen.pls,1,US,US,39.0997,-94.5786,United States,us,?,?,?,?,?,?,?,?,?,?,?
+http://icecast.radiofrance.fr/franceculture-hifi.aac,1,FR,FR,48.8534,2.3488,France,fr,aac,48000,192623,2,?,192,?,?,franceculture-hifi.aac,0,?

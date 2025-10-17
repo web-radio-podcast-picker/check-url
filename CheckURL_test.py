@@ -10,7 +10,6 @@ from urllib.parse import urlparse
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 import threading
-from datetime import datetime
 import logging
 
 # --------------------------------------------------
@@ -234,4 +233,7 @@ async def process_csv_async(input_file, output_file, concurrency=50):
 if __name__ == '__main__':
     input_csv = 'input/radio_urls.csv'
     output_csv = 'output/radio_results.csv'
-    asyncio.run(process_csv_async(input_csv, output_csv, concurrency=50))
+    try:
+        asyncio.run(process_csv_async(input_csv, output_csv, concurrency=50))
+    except (KeyboardInterrupt, asyncio.CancelledError):
+        print("🛑 Stopped by user. Goodbye!")

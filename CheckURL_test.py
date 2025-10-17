@@ -1,125 +1,168 @@
 import os
-import requests
-import socket
 import csv
 import sys
-import subprocess
+import socket
 import json
+import asyncio
+import aiohttp
+import subprocess
 from urllib.parse import urlparse
 from geopy.geocoders import Nominatim
-from time import sleep
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from geopy.exc import GeocoderTimedOut
 import threading
+from datetime import datetime
+import logging
+
+# --------------------------------------------------
+# Logging Setup
+# --------------------------------------------------
+log_filename = "logs/output.log"
+os.makedirs(os.path.dirname(log_filename), exist_ok=True)
+
+logging.basicConfig(
+    level=logging.DEBUG,  # Capture everything
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_filename, encoding="utf-8"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+# Redirect all print() calls to logging.debug()
+print = logging.debug
+
+# Redirect errors into log as well
+sys.stderr = sys.stdout
+
+# --------------------------------------------------
+# Original Script Below (unchanged logic)
+# --------------------------------------------------
 
 # Ensure output folder exists
 def ensure_output_folder(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
 
-# Cache for IP -> location
-ip_cache = {}
-ip_cache_lock = threading.Lock()
-
-# Lock for writing to CSV
+# CSV writing lock
 csv_lock = threading.Lock()
+# IP cache lock
+ip_cache_lock = threading.Lock()
+ip_cache = {}
+# Reverse geocode cache
+geo_cache_lock = threading.Lock()
+geo_cache = {}
 
-# Check if the radio URL is available
-def check_radio_url(url):
+# Load existing entries from output CSV
+def load_existing_entries(output_file):
+    existing = set()
+    if os.path.exists(output_file):
+        with open(output_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f, delimiter='🙈')
+            for row in reader:
+                existing.add((row.get('name', '?'), row.get('url', '?')))
+    return existing
+
+# Async HTTP check for URL availability
+async def check_radio_url(session, url):
     try:
-        response = requests.get(url, timeout=10, stream=True)
-        return response.status_code == 200
-    except requests.exceptions.RequestException:
+        async with session.get(url, timeout=10) as resp:
+            return resp.status == 200
+    except:
         return False
 
-# Get IP address from URL
+# Get IP from URL
 def get_ip_from_url(url):
     domain = urlparse(url).hostname
     try:
         return socket.gethostbyname(domain)
-    except socket.gaierror:
+    except:
         return None
 
-# Get server info from IP with caching
-def get_server_info(ip_address):
+# Async IP info with caching
+async def get_server_info(session, ip_address):
     with ip_cache_lock:
         if ip_address in ip_cache:
             return ip_cache[ip_address]
     try:
-        url = f"http://ipinfo.io/{ip_address}/json?token=604518a7c453f5"
-        response = requests.get(url, timeout=5)
-        data = response.json()
-        loc = data.get("loc", "").split(",")
-        latitude = loc[0] if len(loc) > 0 and loc[0] else "?"
-        longitude = loc[1] if len(loc) > 1 and loc[1] else "?"
-        with ip_cache_lock:
-            ip_cache[ip_address] = (latitude, longitude)
-        return latitude, longitude
-    except Exception as e:
-        print(f"Error in get_server_info for {ip_address}: {e}")
+        async with session.get(f"http://ipinfo.io/{ip_address}/json?token=604518a7c453f5", timeout=5) as resp:
+            data = await resp.json()
+            loc = data.get("loc", "").split(",")
+            latitude = loc[0] if len(loc) > 0 and loc[0] else "?"
+            longitude = loc[1] if len(loc) > 1 and loc[1] else "?"
+            with ip_cache_lock:
+                ip_cache[ip_address] = (latitude, longitude)
+            return latitude, longitude
+    except:
         return "?", "?"
 
-# Reverse-geocode coordinates to country
-def reverse_geocode(latitude, longitude):
-    geolocator = Nominatim(user_agent="GeoCheckerApp", timeout=10)
+# Async reverse geocode using Nominatim
+async def reverse_geocode(latitude, longitude):
+    key = (latitude, longitude)
+    with geo_cache_lock:
+        if key in geo_cache:
+            return geo_cache[key]
     try:
-        location = geolocator.reverse((float(latitude), float(longitude)), language='en', exactly_one=True)
+        geolocator = Nominatim(user_agent="GeoCheckerApp", timeout=10)
+        location = await asyncio.to_thread(geolocator.reverse, (float(latitude), float(longitude)), language='en', exactly_one=True)
         if location:
             address = location.raw.get('address', {})
             country = address.get('country', '?')
             country_code = address.get('country_code', '?')
+            with geo_cache_lock:
+                geo_cache[key] = (country, country_code)
             return country, country_code
         return '?', '?'
-    except Exception as e:
-        print(f"Error in reverse geocoding: {e}")
+    except (GeocoderTimedOut, Exception):
         return '?', '?'
 
-# Get audio stream info using ffprobe
+# Audio info via ffprobe (sync)
 def get_audio_stream_info(url):
     cmd = [
-        'ffprobe',
-        '-v', 'error',
-        '-select_streams', 'a',
+        'ffprobe', '-v', 'error', '-select_streams', 'a',
         '-show_entries', 'stream=codec_name,sample_rate,bit_rate,channels,channel_layout,codec_type',
-        '-of', 'json',
-        url
+        '-of', 'json', url
     ]
     try:
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
         info = json.loads(result.stdout)
         streams = info.get("streams", [])
         audio_stream = next((s for s in streams if s.get("codec_type") == "audio"), {})
-
         codec = audio_stream.get("codec_name", "?")
         sample_rate = audio_stream.get("sample_rate", "?")
         bitrate = audio_stream.get("bit_rate", "?")
         channels = audio_stream.get("channels", "?")
         channel_layout = audio_stream.get("channel_layout", "?")
         return codec, sample_rate, bitrate, channels, channel_layout
-    except Exception as e:
-        print(f"ffprobe error for URL {url}: {e}")
+    except:
         return "?", "?", "?", "?", "?"
 
-# Get ICY metadata safely
-def get_icy_metadata(url):
+# Async ICY metadata
+async def get_icy_metadata(session, url):
     headers = {"Icy-MetaData": "1", "User-Agent": "Mozilla/5.0"}
     try:
-        response = requests.get(url, headers=headers, stream=True, timeout=10)
-        return {
-            'icy-br': response.headers.get('icy-br', '?'),
-            'icy-description': response.headers.get('icy-description', '?'),
-            'icy-genre': response.headers.get('icy-genre', '?'),
-            'icy-name': response.headers.get('icy-name', '?'),
-            'icy-pub': response.headers.get('icy-pub', '?')
-        }
-    except Exception as e:
-        print(f"Error getting ICY metadata for {url}: {e}")
+        async with session.get(url, headers=headers, timeout=10) as resp:
+            return {
+                'icy-br': resp.headers.get('icy-br', '?'),
+                'icy-description': resp.headers.get('icy-description', '?'),
+                'icy-genre': resp.headers.get('icy-genre', '?'),
+                'icy-name': resp.headers.get('icy-name', '?'),
+                'icy-pub': resp.headers.get('icy-pub', '?')
+            }
+    except:
         return {'icy-br': '?', 'icy-description': '?', 'icy-genre': '?', 'icy-name': '?', 'icy-pub': '?'}
 
-# Process a single URL
-def process_radio(row):
+# Process a single row
+async def process_radio(row, session, existing_entries, entry_lock):
     name = row.get('name', '?')
     url = row.get('url', '?')
-    availability = "1" if check_radio_url(url) else "0"
+    key = (name, url)
 
+    with entry_lock:
+        if key in existing_entries:
+            print(f"Skipping already processed: {key}")
+            return None
+        existing_entries.add(key)
+
+    availability = "1" if await check_radio_url(session, url) else "0"
     country, country_code, latitude, longitude = "?", "?", "?", "?"
     codec, sample_rate, bitrate, channels, channel_layout = "?", "?", "?", "?", "?"
     icy_metadata = {'icy-br': '?', 'icy-description': '?', 'icy-genre': '?', 'icy-name': '?', 'icy-pub': '?'}
@@ -127,34 +170,26 @@ def process_radio(row):
     if availability == "1":
         ip_address = get_ip_from_url(url)
         if ip_address:
-            latitude, longitude = get_server_info(ip_address)
+            latitude, longitude = await get_server_info(session, ip_address)
             if latitude != "?" and longitude != "?":
-                country, country_code = reverse_geocode(latitude, longitude)
-
+                country, country_code = await reverse_geocode(latitude, longitude)
         codec, sample_rate, bitrate, channels, channel_layout = get_audio_stream_info(url)
-        icy_metadata = get_icy_metadata(url)
+        icy_metadata = await get_icy_metadata(session, url)
 
     # Console output
-    sys.stdout.write(
-        f"{url} | {availability} | {country} | {country_code} | {latitude} | {longitude} | "
-        f"{codec} | {sample_rate} | {bitrate} | {channels} | {channel_layout} | "
-        f"{icy_metadata['icy-br']} | {icy_metadata['icy-description']} | {icy_metadata['icy-genre']} | "
-        f"{icy_metadata['icy-name']} | {icy_metadata['icy-pub']}\n"
+    print(
+        f"{name} 🙈 {url} 🙈 {availability} 🙈 {country} 🙈 {country_code} 🙈 {latitude} 🙈 {longitude} 🙈 "
+        f"{codec} 🙈 {sample_rate} 🙈 {bitrate} 🙈 {channels} 🙈 {channel_layout} 🙈 "
+        f"{icy_metadata['icy-br']} 🙈 {icy_metadata['icy-description']} 🙈 {icy_metadata['icy-genre']} 🙈 "
+        f"{icy_metadata['icy-name']} 🙈 {icy_metadata['icy-pub']}"
     )
 
     return {
-        'name': name,
-        'url': url,
-        'availability': availability,
-        'country': country,
-        'country_code': country_code,
-        'latitude': latitude,
-        'longitude': longitude,
-        'codec': codec,
-        'sample_rate': sample_rate,
-        'bitrate': bitrate,
-        'channels': channels,
-        'channel_layout': channel_layout,
+        'name': name, 'url': url, 'availability': availability,
+        'country': country, 'country_code': country_code,
+        'latitude': latitude, 'longitude': longitude,
+        'codec': codec, 'sample_rate': sample_rate, 'bitrate': bitrate,
+        'channels': channels, 'channel_layout': channel_layout,
         'icy-br': icy_metadata['icy-br'],
         'icy-description': icy_metadata['icy-description'],
         'icy-genre': icy_metadata['icy-genre'],
@@ -162,34 +197,41 @@ def process_radio(row):
         'icy-pub': icy_metadata['icy-pub']
     }
 
-# Main function
-def process_csv_parallel(input_file, output_file, max_workers=5):
+# Main async CSV processor
+async def process_csv_async(input_file, output_file, concurrency=50):
     ensure_output_folder(output_file)
+    existing_entries = load_existing_entries(output_file)
+    entry_lock = threading.Lock()
+
     with open(input_file, 'r', encoding='utf-8') as infile, \
-         open(output_file, 'w', newline='', encoding='utf-8') as outfile:
+         open(output_file, 'a', newline='', encoding='utf-8') as outfile:
 
-        reader = list(csv.DictReader(infile))
+        reader = list(csv.DictReader(infile, delimiter='🙈'))
         fieldnames = [
-            'name', 'url', 'availability',
-            'country', 'country_code',
-            'latitude', 'longitude',
-            'codec', 'sample_rate', 'bitrate', 'channels', 'channel_layout',
-            'icy-br', 'icy-description', 'icy-genre', 'icy-name', 'icy-pub'
+            'name','url','availability','country','country_code','latitude','longitude',
+            'codec','sample_rate','bitrate','channels','channel_layout',
+            'icy-br','icy-description','icy-genre','icy-name','icy-pub'
         ]
-        writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-        writer.writeheader()
+        writer = csv.DictWriter(outfile, fieldnames=fieldnames, delimiter='🙈')
+        if os.path.getsize(output_file) == 0:
+            writer.writeheader()
 
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            future_to_row = {executor.submit(process_radio, row): row for row in reader}
+        async with aiohttp.ClientSession() as session:
+            sem = asyncio.Semaphore(concurrency)
 
-            for future in as_completed(future_to_row):
-                result = future.result()
-                with csv_lock:
-                    writer.writerow(result)
-                sleep(1)  # politeness delay per thread
+            async def sem_task(row):
+                async with sem:
+                    result = await process_radio(row, session, existing_entries, entry_lock)
+                    if result:
+                        with csv_lock:
+                            writer.writerow(result)
+                    await asyncio.sleep(0.05)  # polite
 
-# Main program
+            tasks = [sem_task(row) for row in reader]
+            await asyncio.gather(*tasks)
+
+# Run
 if __name__ == '__main__':
     input_csv = 'input/radio_urls.csv'
     output_csv = 'output/radio_results.csv'
-    process_csv_parallel(input_csv, output_csv, max_workers=5)
+    asyncio.run(process_csv_async(input_csv, output_csv, concurrency=50))

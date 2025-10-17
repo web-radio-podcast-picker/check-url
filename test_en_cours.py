@@ -10,6 +10,33 @@ from urllib.parse import urlparse
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 import threading
+from datetime import datetime
+import logging
+
+# --------------------------------------------------
+# Logging Setup
+# --------------------------------------------------
+log_filename = "logs/output.log"
+os.makedirs(os.path.dirname(log_filename), exist_ok=True)
+
+logging.basicConfig(
+    level=logging.DEBUG,  # Capture everything
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(log_filename, encoding="utf-8"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+
+# Redirect all print() calls to logging.debug()
+print = logging.debug
+
+# Redirect errors into log as well
+sys.stderr = sys.stdout
+
+# --------------------------------------------------
+# Original Script Below (unchanged logic)
+# --------------------------------------------------
 
 # Ensure output folder exists
 def ensure_output_folder(path):
@@ -75,7 +102,6 @@ async def reverse_geocode(latitude, longitude):
             return geo_cache[key]
     try:
         geolocator = Nominatim(user_agent="GeoCheckerApp", timeout=10)
-        # Run the blocking reverse call in a thread
         location = await asyncio.to_thread(geolocator.reverse, (float(latitude), float(longitude)), language='en', exactly_one=True)
         if location:
             address = location.raw.get('address', {})
@@ -151,11 +177,11 @@ async def process_radio(row, session, existing_entries, entry_lock):
         icy_metadata = await get_icy_metadata(session, url)
 
     # Console output
-    sys.stdout.write(
-        f"{url} | {availability} | {country} | {country_code} | {latitude} | {longitude} | "
-        f"{codec} | {sample_rate} | {bitrate} | {channels} | {channel_layout} | "
-        f"{icy_metadata['icy-br']} | {icy_metadata['icy-description']} | {icy_metadata['icy-genre']} | "
-        f"{icy_metadata['icy-name']} | {icy_metadata['icy-pub']}\n"
+    print(
+        f"{name} 🙈 {url} 🙈 {availability} 🙈 {country} 🙈 {country_code} 🙈 {latitude} 🙈 {longitude} 🙈 "
+        f"{codec} 🙈 {sample_rate} 🙈 {bitrate} 🙈 {channels} 🙈 {channel_layout} 🙈 "
+        f"{icy_metadata['icy-br']} 🙈 {icy_metadata['icy-description']} 🙈 {icy_metadata['icy-genre']} 🙈 "
+        f"{icy_metadata['icy-name']} 🙈 {icy_metadata['icy-pub']}"
     )
 
     return {
